@@ -22,7 +22,7 @@ func TestPreprocess(t *testing.T) {
 
 func TestCollectWords(t *testing.T) {
 	s := "私はきれいな雪原に出かけた"
-	got, err := jpclouds.CollectWords(s, []jpclouds.SpeechPart{jpclouds.Noun, jpclouds.Verb, jpclouds.Adjective})
+	got, err := jpclouds.CollectWords(s, jpclouds.Noun, jpclouds.Verb, jpclouds.Adjective)
 	if err != nil {
 		t.Fatal(err)
 	}

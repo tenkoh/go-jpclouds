@@ -47,7 +47,7 @@ func Preprocess(r io.Reader) (string, error) {
 	return s, nil
 }
 
-func CollectWords(s string, targets []SpeechPart) ([]string, error) {
+func CollectWords(s string, targets ...SpeechPart) ([]string, error) {
 	t, err := tokenizer.New(ipa.Dict(), tokenizer.OmitBosEos())
 	if err != nil {
 		return nil, err
