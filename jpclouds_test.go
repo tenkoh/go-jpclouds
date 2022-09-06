@@ -8,13 +8,25 @@ import (
 	"github.com/tenkoh/go-jpclouds"
 )
 
-func TestNouns(t *testing.T) {
-	r := strings.NewReader("吾輩は猫である")
-	got, err := jpclouds.Nouns(r)
+func TestPreprocess(t *testing.T) {
+	r := strings.NewReader("吾輩は cat である。ﾅﾏｴﾊﾏﾀﾞﾅｲ。ａｂｃ。")
+	got, err := jpclouds.Preprocess(r)
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []string{"吾輩", "猫"}
+	want := "吾輩はCATである。ナマエハマダナイ。ABC。"
+	if want != got {
+		t.Errorf("want %s, got %s", want, got)
+	}
+}
+
+func TestCollectWords(t *testing.T) {
+	s := "私はきれいな雪原に出かけた"
+	got, err := jpclouds.CollectWords(s, []jpclouds.SpeechPart{jpclouds.Noun, jpclouds.Verb, jpclouds.Adjective})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"私", "きれい", "雪原", "出かける"}
 	if !reflect.DeepEqual(want, got) {
 		t.Errorf("want %+v, got %+v", want, got)
 	}
