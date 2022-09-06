@@ -1,6 +1,7 @@
 package jpclouds_test
 
 import (
+	"io"
 	"reflect"
 	"strings"
 	"testing"
@@ -9,11 +10,13 @@ import (
 )
 
 func TestPreprocess(t *testing.T) {
-	r := strings.NewReader("吾輩は cat である。ﾅﾏｴﾊﾏﾀﾞﾅｲ。ａｂｃ。")
-	got, err := jpclouds.Preprocess(r)
+	r, err := jpclouds.Preprocess(strings.NewReader("吾輩は cat である。ﾅﾏｴﾊﾏﾀﾞﾅｲ。ａｂｃ。"))
 	if err != nil {
 		t.Fatal(err)
 	}
+	b, _ := io.ReadAll(r)
+	got := string(b)
+
 	want := "吾輩はCATである。ナマエハマダナイ。ABC。"
 	if want != got {
 		t.Errorf("want %s, got %s", want, got)
@@ -21,7 +24,7 @@ func TestPreprocess(t *testing.T) {
 }
 
 func TestCollectWords(t *testing.T) {
-	s := "私はきれいな雪原に出かけた"
+	s := strings.NewReader("私はきれいな雪原に出かけた")
 	got, err := jpclouds.CollectWords(s, jpclouds.Noun, jpclouds.Verb, jpclouds.Adjective)
 	if err != nil {
 		t.Fatal(err)

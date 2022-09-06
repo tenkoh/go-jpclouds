@@ -24,13 +24,16 @@ const (
 	Adjective
 )
 
-func Preprocess(r io.Reader) (string, error) {
+// Preprocess do some processes to realize proper word counts.
+// This gets io.Reader then returns io.Reader, because
+// in some cases, this preprocess might not be used.
+func Preprocess(r io.Reader) (io.Reader, error) {
 	// unicode的表記ゆれを除去する
 	r = norm.NFKC.Reader(r)
 
 	b, err := io.ReadAll(r)
 	if err != nil {
-		return "", fmt.Errorf("error occured in preprocessing")
+		return nil, fmt.Errorf("error occured in preprocessing")
 	}
 
 	// 英数字は半角、カタカナは全角で統一する
@@ -44,20 +47,25 @@ func Preprocess(r io.Reader) (string, error) {
 	// remove spaces to detect multi-words english word as a one-word.
 	s = strings.ReplaceAll(s, " ", "")
 
-	return s, nil
+	return strings.NewReader(s), nil
 }
 
-func CollectWords(s string, targets ...SpeechPart) ([]string, error) {
+func CollectWords(r io.Reader, targets ...SpeechPart) ([]string, error) {
 	t, err := tokenizer.New(ipa.Dict(), tokenizer.OmitBosEos())
 	if err != nil {
 		return nil, err
 	}
-	var words []string
 	targetMap := map[string]struct{}{}
 	for _, target := range targets {
 		targetMap[target.String()] = struct{}{}
 	}
-	tokens := t.Tokenize(s)
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var words []string
+	tokens := t.Tokenize(string(b))
 	for _, token := range tokens {
 		sp, exist := token.FeatureAt(0)
 		if !exist {
@@ -86,4 +94,11 @@ func WordCount(words []string) (map[string]int, error) {
 		counter[w] = i + 1
 	}
 	return counter, nil
+}
+
+func RemoveStopWords(m map[string]int, sw []string) error {
+	for _, w := range sw {
+		delete(m, w)
+	}
+	return nil
 }
