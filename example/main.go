@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	_ "embed"
-	"fmt"
 	"image/color"
 	"image/png"
 	"os"
@@ -68,7 +67,6 @@ func main() {
 	for sc.Scan() {
 		stopWords = append(stopWords, sc.Text())
 	}
-	fmt.Println(len(stopWords))
 
 	r, err := jpclouds.Preprocess(f)
 	if err != nil {
